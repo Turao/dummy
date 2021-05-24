@@ -9,7 +9,7 @@ export class OutboxConsumer implements Consumer<Event> {
   }
 
   async consume(): Promise<Event> {
-    this.logger.debug("consuming event from inbox");
+    this.logger.debug("consuming event from outbox");
 
     return Promise.resolve({
       id: "id",

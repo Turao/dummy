@@ -16,11 +16,10 @@ export class Retriable {
     this.logger = logger;
   }
 
-  from(fn: AnyFunction): RetriableFunction {
-    const ticker = this.ticker;
-    const limit = this.limit;
+  of<F extends AnyFunction>(fn: F): RetriableFunction {
+    const { ticker, limit, logger } = this;
     let counter = 0;
-    const logger = this.logger;
+
     return async function execute(...args: any[]): Promise<any> {
       try {
         return await fn(...args);

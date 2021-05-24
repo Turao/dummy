@@ -1,37 +1,45 @@
-import { AppLogger } from "./logger/logger";
+import { AppLogger, Logger } from "./logger/logger";
+import { InboxConsumer } from "./resilience/inbox-outbox/inbox/consumer";
 import { InboxPublisher } from "./resilience/inbox-outbox/inbox/publisher";
+import { OutboxConsumer } from "./resilience/inbox-outbox/outbox/consumer";
 import { OutboxPublisher } from "./resilience/inbox-outbox/outbox/publisher";
+import { Pollable } from "./resilience/polling/pollable";
+import { Polled } from "./resilience/polling/Polled";
 import { Retriable } from "./resilience/retry/retriable";
+import { Retry } from "./resilience/retry/Retry";
 import { LinearTicker } from "./resilience/retry/ticker";
 
-function test() {
-  const n = Math.random();
-  if (n > 0.2) {
-    throw Error(`${n}`);
-  } else {
-    return n;
+const consumeInbox = async () => {
+  AppLogger.info("starting outbox consumer...");
+
+  const consumer = new InboxConsumer(AppLogger);
+  const pollable = new Pollable(new LinearTicker(1500));
+  const retriable = new Retriable(20, new LinearTicker(1000), AppLogger);
+
+  await retriable.of(pollable.of(consumer.consume.bind(consumer)))();
+};
+consumeInbox();
+
+// const consumeOutbox = async () => {
+//   AppLogger.info("starting outbox consumer...");
+
+//   const consumer = new OutboxConsumer(AppLogger);
+//   const pollable = new Pollable(new LinearTicker(1500));
+//   const retriable = new Retriable(20, new LinearTicker(1000), AppLogger);
+
+//   await retriable.of(pollable.of(consumer.consume.bind(consumer)))();
+// };
+// consumeOutbox();
+
+class ReliableOutboxConsumer extends OutboxConsumer {
+  @Retry({ limit: 20, logger: AppLogger, ticker: new LinearTicker(1000) })
+  @Polled({ logger: AppLogger, ticker: new LinearTicker(1000) })
+  async consume() {
+    return super.consume();
   }
 }
 
-new Retriable(20, new LinearTicker(1000), AppLogger)
-  .from(test)()
-  .then((n: number) => console.log({ n }))
-  .catch((error: Error) => AppLogger.error(error.message));
+const startOutboxConsumer = async () =>
+  await new ReliableOutboxConsumer(AppLogger).consume();
 
-const publish = async () => {
-  await new InboxPublisher(AppLogger).publish({
-    id: "inbox-id",
-    name: "inbox-event",
-    correlationId: "inbox-correlation-id",
-    date: Date.now(),
-  });
-
-  await new OutboxPublisher(AppLogger).publish({
-    id: "inbox-id",
-    name: "inbox-event",
-    correlationId: "inbox-correlation-id",
-    date: Date.now(),
-  });
-};
-
-publish();
+startOutboxConsumer();
