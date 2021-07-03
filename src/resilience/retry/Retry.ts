@@ -1,4 +1,4 @@
-import { Logger } from "../../logger/logger";
+import { Logger } from "../../logging/core/Logger";
 import { Ticker } from "./ticker";
 
 export interface RetryOptions {

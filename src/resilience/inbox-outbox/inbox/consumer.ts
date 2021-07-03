@@ -1,4 +1,4 @@
-import { Logger } from "../../../logger/logger";
+import { Logger } from "../../../logging/core/Logger";
 import { Consumer, Event } from "../interfaces";
 
 export class InboxConsumer implements Consumer<Event> {

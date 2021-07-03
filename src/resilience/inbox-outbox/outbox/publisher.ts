@@ -1,4 +1,4 @@
-import { Logger } from "../../../logger/logger";
+import { Logger } from "../../../logging/core/Logger";
 import { Event, Publisher } from "../interfaces";
 
 export class OutboxPublisher implements Publisher<Event> {
