@@ -13,6 +13,6 @@ export class DeliveryDeleter implements DeleteDeliveryCommand {
 
   async execute(request: DeleteDeliveryRequest): Promise<void> {
     this.logger.debug("deleting delivery", request.deliveryId);
-    this.deliveryRepository.deleteByID(request.deliveryId);
+    await this.deliveryRepository.deleteByID(request.deliveryId);
   }
 }

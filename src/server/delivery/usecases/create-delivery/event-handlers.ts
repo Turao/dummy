@@ -18,6 +18,9 @@ export class DeliveryCreatedEventHandler implements Handler<DeliveryCreated> {
       correlationId: event.correlationId,
     });
     this.logger.debug("handling delivery created event", { event });
-    await this.createDelivery.execute({ name: event.deliveryName });
+    await this.createDelivery.execute({
+      id: event.deliveryId,
+      name: event.deliveryName,
+    });
   }
 }

@@ -14,7 +14,7 @@ export class DeliveryCreator implements CreateDeliveryCommand {
 
   async execute(request: CreateDeliveryRequest): Promise<void> {
     this.logger.debug("creating delivery...", request.name);
-    const delivery = new Delivery(request.name);
-    this.deliveryRepository.insert(delivery);
+    const delivery = new Delivery(request.id, request.name);
+    await this.deliveryRepository.insert(delivery);
   }
 }
