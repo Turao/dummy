@@ -14,7 +14,6 @@ export class DeliveryLister implements ListDeliveriesQuery {
   async execute(): Promise<ListDeliveriesResponse> {
     this.logger.setContext({
       ...this.logger.getContext(),
-      usecase: "delivery retrieval",
     });
     this.logger.debug("listing all deliveries");
     return this.deliveryRepository.findAll();

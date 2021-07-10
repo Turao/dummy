@@ -3,11 +3,6 @@ import { Logger as TSLog } from "tslog";
 
 import { DeliveryServer } from "./server/delivery/DeliveryServer";
 
-import { AMQPClient } from "./messaging/amqplib/Client";
-import { AMQPConsumer } from "./messaging/amqplib/Consumer";
-import { AMQPExchange } from "./messaging/amqplib/Exchange";
-import { AMQPQueue } from "./messaging/amqplib/Queue";
-
 import { AsyncLocalStorage } from "async_hooks";
 import { LoggingContext } from "./logging/core/Context";
 import { RXEventBus } from "./events/rx/RXEventBus";
