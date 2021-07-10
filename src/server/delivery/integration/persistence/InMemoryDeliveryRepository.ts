@@ -15,17 +15,17 @@ export class InMemoryDeliveryRepository implements DeliveryRepository {
   }
 
   async findByID(deliveryID: string): Promise<Delivery | null> {
-    this.logger.debug(`finding delivery by ID: ${deliveryID}`);
+    this.logger.debug("finding delivery by ID:", deliveryID);
     return Promise.resolve(null);
   }
 
   async insert(delivery: Delivery): Promise<void> {
-    this.logger.debug(`inserting delivery: ${delivery}`);
+    this.logger.debug("inserting delivery:", delivery);
     return Promise.resolve();
   }
 
   async deleteByID(deliveryID: string): Promise<void> {
-    this.logger.debug(`deleting delivery by ID: ${deliveryID}`);
+    this.logger.debug("deleting delivery by ID:", deliveryID);
     return Promise.resolve();
   }
 }

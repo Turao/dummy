@@ -24,6 +24,8 @@ export class ListDeliveriesController
     this.logger.debug("handling ListDeliveries request", { request });
     const deliveries = await this.listDeliveries.execute();
 
+    await new Promise((resolve, reject) => setTimeout(resolve, 2000));
+
     return {
       deliveries: deliveries.map((d) => ({ deliveryID: d.id, name: d.name })),
     };

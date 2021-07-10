@@ -19,6 +19,9 @@ export class CreateDeliveryController
 
   async handle(request: CreateDeliveryRequestDTO): Promise<void> {
     this.logger.debug("handling createDelivery request", { request });
+
+    await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+
     await this.createDelivery.execute({ name: request.name });
   }
 }

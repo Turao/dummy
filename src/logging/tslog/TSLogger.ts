@@ -1,50 +1,45 @@
 import { Logger } from "../core/Logger";
 import { Logger as TSLog } from "tslog";
+import { AsyncLocalStorage } from "async_hooks";
+import { LoggingContext } from "../core/Context";
 
 export interface Config {
-  format: "json" | "human";
-  level: "fatal" | "error" | "info" | "debug";
+  pretty: boolean;
+  level: "fatal" | "error" | "warn" | "info" | "debug";
 }
-
-export const defaults: Config = {
-  format: "human",
-  level: "debug",
-};
-
-export const env: Config = {
-  format: process.env.LOGGER_FORMAT as Config["format"],
-  level: process.env.LOGGER_LEVEL as Config["level"],
-};
 
 export class TSLogger implements Logger {
   private readonly logger: TSLog;
+  private readonly context: AsyncLocalStorage<LoggingContext>;
 
-  constructor(logger: TSLog, config: Config) {
+  constructor(
+    logger: TSLog,
+    context: AsyncLocalStorage<LoggingContext>,
+    config: Config
+  ) {
     this.logger = logger;
+    this.context = context;
+
     this.configure(config);
+  }
+
+  setContext(context: LoggingContext): void {
+    this.context.enterWith(context);
+  }
+
+  getContext(): LoggingContext {
+    const ctx = this.context.getStore();
+    return ctx ? ctx : {};
   }
 
   configure(config: Config): void {
     this.logger.setSettings({ ignoreStackLevels: 4 });
+    this.logger.setSettings({
+      requestId: () => JSON.stringify(this.context.getStore()),
+    });
 
-    this.setLogFormat(config.format);
-    this.setLogLevel(config.level);
-  }
-
-  private setLogFormat(format: Config["format"]) {
-    switch (format) {
-      case "json":
-        this.logger.setSettings({ type: "json" });
-        return;
-
-      case "human":
-      default:
-        this.logger.setSettings({ type: "pretty" });
-    }
-  }
-
-  private setLogLevel(level: Config["level"]) {
-    this.logger.setSettings({ minLevel: level });
+    this.logger.setSettings({ type: config.pretty ? "pretty" : "json" });
+    this.logger.setSettings({ minLevel: config.level });
   }
 
   fatal(...args: unknown[]): void {
@@ -53,6 +48,10 @@ export class TSLogger implements Logger {
 
   error(...args: unknown[]): void {
     this.logger.error(...args);
+  }
+
+  warn(...args: unknown[]): void {
+    this.logger.warn(...args);
   }
 
   info(...args: unknown[]): void {

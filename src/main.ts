@@ -1,11 +1,25 @@
 import { TSLogger } from "./logging/tslog/TSLogger";
 import { Logger as TSLog } from "tslog";
-import { DeliveryServer } from "./server/delivery/DeliveryServer";
-import { AMQPClient } from "./messaging/amqplib/Client";
 
-const logger = new TSLogger(new TSLog(), {
-  format: "human",
+import { DeliveryServer } from "./server/delivery/DeliveryServer";
+
+import { AMQPClient } from "./messaging/amqplib/Client";
+import { AMQPConsumer } from "./messaging/amqplib/Consumer";
+import { AMQPExchange } from "./messaging/amqplib/Exchange";
+import { AMQPQueue } from "./messaging/amqplib/Queue";
+
+import { AsyncLocalStorage } from "async_hooks";
+import { LoggingContext } from "./logging/core/Context";
+import { RXEventBus } from "./events/rx/RXEventBus";
+import { RXPublisher } from "./events/rx/RXPublisher";
+import { RXSubscriber } from "./events/rx/RXSubscriber";
+import { DeliveryCreated } from "./server/delivery/events/DeliveryCreated";
+
+const context: AsyncLocalStorage<LoggingContext> = new AsyncLocalStorage();
+
+const logger = new TSLogger(new TSLog(), context, {
   level: "debug",
+  pretty: true,
 });
 
 const deliveryServer = new DeliveryServer(
@@ -16,11 +30,26 @@ const deliveryServer = new DeliveryServer(
 );
 
 const start = async () => {
-  // await deliveryServer.createDeliveryController.handle({
-  //   name: "new-delivery",
-  // });
+  await context.run(
+    {
+      correlationId: "correlationId-0",
+      eventId: "event-0",
+      eventName: "list-deliveries",
+    },
+    () => deliveryServer.listDeliveriesController.handle({})
+  );
 
-  // await deliveryServer.listDeliveriesController.handle({});
+  await context.run(
+    {
+      correlationId: "correlationId-1",
+      eventId: "event-1",
+      eventName: "create-delivery",
+    },
+    () =>
+      deliveryServer.createDeliveryController.handle({
+        name: "new-delivery",
+      })
+  );
 
   // await deliveryServer.getDeliveryController.handle({
   //   deliveryID: "uuid-here",
@@ -32,18 +61,49 @@ const start = async () => {
 
   // await deliveryServer.serve();
 
-  const amqpClient = new AMQPClient(
-    {
-      protocol: "amqp",
-      host: "localhost",
-      port: 5672,
-      user: "guest",
-      password: "guest",
-    },
-    logger
-  );
+  // const amqpClient = new AMQPClient(
+  //   {
+  //     protocol: "amqp",
+  //     host: "localhost",
+  //     port: 5672,
+  //     user: "guest",
+  //     password: "guest",
+  //   },
+  //   logger
+  // );
 
-  await amqpClient.connect();
+  // await amqpClient.connect();
+  // const exchange = new AMQPExchange(
+  //   amqpClient,
+  //   { name: "lpx-exchange", type: "topic" },
+  //   logger
+  // );
+  // const queue = new AMQPQueue(amqpClient, { name: "my-queue" }, logger);
+  // const consumer = new AMQPConsumer(amqpClient, { exchange, queue }, logger);
+  // await consumer.init();
 };
 
 start();
+
+const EventBus = new RXEventBus(logger);
+
+const publisher = new RXPublisher<DeliveryCreated>("evento", EventBus, logger);
+const subscriber = new RXSubscriber<DeliveryCreated>(
+  "evento",
+  EventBus,
+  logger
+);
+
+subscriber.subscribe(async (event: DeliveryCreated): Promise<void> => {
+  logger.debug("received", event);
+});
+
+publisher.publish({
+  deliveryId: "my-event-delivery-id",
+  deliveryName: "my-event-delivery-name",
+});
+
+publisher.publish({
+  deliveryId: "ahoy-id",
+  deliveryName: "ahoy-name",
+});

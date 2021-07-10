@@ -37,7 +37,16 @@ export class AMQPClient implements Client {
     this.logger = logger;
   }
 
+  isConnected(): boolean {
+    return this.connection !== null;
+  }
+
   async connect(): Promise<void> {
+    if (this.isConnected()) {
+      this.logger.debug("client already connected");
+      return;
+    }
+
     const URI = `${this.config.host}:${this.config.port}`;
     this.logger.debug("connecting to:", URI);
 
@@ -61,17 +70,21 @@ export class AMQPClient implements Client {
     const URI = `${this.config.host}:${this.config.port}`;
     this.logger.debug("disconnecting from:", URI);
 
-    if (this.connection == null) {
+    if (!this.isConnected()) {
       this.logger.debug("client not connected");
       return;
     }
 
     try {
-      await this.connection.close();
+      await this.connection?.close();
       this.logger.debug("disconnected from:", URI);
     } catch (err) {
       this.logger.error(err);
       throw err;
     }
+  }
+
+  getConnection(): amqplib.Connection | null {
+    return this.connection;
   }
 }
