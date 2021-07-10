@@ -1,5 +1,6 @@
 import { Logger } from "../../logging/core/Logger";
-import { Handler, Subscriber } from "../core/Subscriber";
+import { Handler } from "../core/Handler";
+import { Subscriber } from "../core/Subscriber";
 import { RXEventBus } from "./RXEventBus";
 
 export class RXSubscriber<E> implements Subscriber<E> {
@@ -16,7 +17,7 @@ export class RXSubscriber<E> implements Subscriber<E> {
   async subscribe(handler: Handler<E>): Promise<void> {
     this.logger.debug("subscribing to events from:", this.eventName);
     this.bus.get<E>(this.eventName).subscribe({
-      next: (event: E) => handler(event),
+      next: (event: E) => handler.handle(event),
     });
   }
 }

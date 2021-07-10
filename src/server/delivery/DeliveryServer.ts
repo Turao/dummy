@@ -1,17 +1,13 @@
 import { Logger } from "../../logging/core/Logger";
 import { Server } from "../core/Server";
 
-import { CreateDeliveryController } from "./integration/controllers/CreateDeliveryController";
-import { DeleteDeliveryController } from "./integration/controllers/DeleteDeliveryController";
-import { GetDeliveryController } from "./integration/controllers/GetDeliveryController";
-import { ListDeliveriesController } from "./integration/controllers/ListDeliveriesController";
+import { CreateDeliveryHandler } from "./integration/event-handlers/CreateDeliverySubscriber";
+import { DeleteDeliveryHandler } from "./integration/event-handlers/DeleteDeliverySubscriber";
 
 import { InMemoryDeliveryRepository } from "./integration/persistence/InMemoryDeliveryRepository";
 
 import { DeliveryCreator } from "./usecases/create-delivery/use-case";
 import { DeliveryDeleter } from "./usecases/delete-delivery/use-case";
-import { DeliveryGetter } from "./usecases/get-delivery/use-case";
-import { DeliveryLister } from "./usecases/list-deliveries/use-case";
 
 export interface Config {
   port: number;
@@ -30,10 +26,8 @@ export class DeliveryServer implements Server {
   private readonly logger: Logger;
 
   // todo: make them private
-  public readonly createDeliveryController: CreateDeliveryController;
-  public readonly deleteDeliveryController: DeleteDeliveryController;
-  public readonly getDeliveryController: GetDeliveryController;
-  public readonly listDeliveriesController: ListDeliveriesController;
+  public readonly createDeliveryHandler: CreateDeliveryHandler;
+  public readonly deleteDeliveryHandler: DeleteDeliveryHandler;
 
   constructor(config: Config, logger: Logger) {
     this.config = config;
@@ -42,24 +36,14 @@ export class DeliveryServer implements Server {
     // init repositories
     const deliveryRepository = new InMemoryDeliveryRepository(logger);
 
-    // register controllers
-    this.createDeliveryController = new CreateDeliveryController(
+    // register handlers
+    this.createDeliveryHandler = new CreateDeliveryHandler(
       new DeliveryCreator(deliveryRepository, logger),
       logger
     );
 
-    this.deleteDeliveryController = new DeleteDeliveryController(
+    this.deleteDeliveryHandler = new DeleteDeliveryHandler(
       new DeliveryDeleter(deliveryRepository, logger),
-      logger
-    );
-
-    this.getDeliveryController = new GetDeliveryController(
-      new DeliveryGetter(deliveryRepository, logger),
-      logger
-    );
-
-    this.listDeliveriesController = new ListDeliveriesController(
-      new DeliveryLister(deliveryRepository, logger),
       logger
     );
   }

@@ -1,23 +1,24 @@
-import { Subject } from "rxjs";
-import { Logger } from "../../logging/core/Logger";
+import { ReplaySubject } from "rxjs";
+
+export interface Config {
+  size: number;
+}
 
 export class RXEventBus {
-  private readonly bus: Record<string, Subject<any>>;
-  private readonly logger: Logger;
+  private readonly bus: Record<string, ReplaySubject<any>>;
+  private readonly config: Config;
 
-  constructor(logger: Logger) {
+  constructor(config: Config) {
     this.bus = {};
-    this.logger = logger;
+    this.config = config;
   }
 
-  get<E>(eventName: string): Subject<E> {
-    this.logger.debug("gettings events of type", eventName);
-
+  get<E>(eventName: string): ReplaySubject<E> {
     const events = this.bus[eventName];
     if (!events) {
-      this.bus[eventName] = new Subject<E>();
+      this.bus[eventName] = new ReplaySubject<E>(this.config.size);
     }
 
-    return this.bus[eventName] as Subject<E>;
+    return this.bus[eventName] as ReplaySubject<E>;
   }
 }

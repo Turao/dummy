@@ -1,14 +1,10 @@
+import { Handler } from "../../../../events/core/Handler";
 import { Logger } from "../../../../logging/core/Logger";
 import { Controller } from "../../../core/Controller";
+import { DeliveryDeleted } from "../../events/DeliveryDeleted";
 import { DeleteDeliveryCommand } from "../../usecases/delete-delivery/interfaces";
 
-export type DeleteDeliveryRequestDTO = {
-  deliveryID: string;
-};
-
-export class DeleteDeliveryController
-  implements Controller<DeleteDeliveryRequestDTO, void>
-{
+export class DeleteDeliveryHandler implements Handler<DeliveryDeleted> {
   private readonly deleteDelivery: DeleteDeliveryCommand;
   private readonly logger: Logger;
 
@@ -17,11 +13,10 @@ export class DeleteDeliveryController
     this.logger = logger;
   }
 
-  async handle(request: DeleteDeliveryRequestDTO): Promise<void> {
-    this.logger.debug("handling DeleteDelivery request", { request });
-    const response = await this.deleteDelivery.execute({
-      deliveryId: request.deliveryID,
+  async handle(event: DeliveryDeleted): Promise<void> {
+    this.logger.debug("handling delivery deleted event", { event });
+    await this.deleteDelivery.execute({
+      deliveryId: event.deliveryId,
     });
-    this.logger.debug("got", response);
   }
 }
