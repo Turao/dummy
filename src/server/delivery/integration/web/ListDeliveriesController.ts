@@ -6,8 +6,9 @@ type Request = Record<string, never>;
 
 type Response = {
   deliveries: {
-    readonly deliveryId: string;
-    readonly deliveryName: string;
+    readonly id: string;
+    readonly name: string;
+    readonly completed: boolean;
   }[];
 };
 
@@ -26,8 +27,9 @@ export class ListDeliveryController implements Controller<Request, Response> {
 
     return {
       deliveries: deliveries.map((delivery) => ({
-        deliveryId: delivery.id,
-        deliveryName: delivery.name,
+        id: delivery.id,
+        name: delivery.name,
+        completed: delivery.isComplete(),
       })),
     };
   }

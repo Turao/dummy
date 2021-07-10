@@ -14,13 +14,8 @@ import { RXEventBus } from "./events/rx/RXEventBus";
 import { RXPublisher } from "./events/rx/RXPublisher";
 import { RXSubscriber } from "./events/rx/RXSubscriber";
 import { DeliveryCreated } from "./server/delivery/events/DeliveryCreated";
-import { InMemoryDeliveryRepository } from "./server/delivery/integration/persistence/InMemoryDeliveryRepository";
-
-import { DeliveryCreator } from "./server/delivery/usecases/create-delivery/use-case";
-import { DeliveryDeleter } from "./server/delivery/usecases/delete-delivery/use-case";
-import { DeliveryCreatedEventHandler } from "./server/delivery/usecases/create-delivery/event-handlers";
-import { DeliveryDeletedEventHandler } from "./server/delivery/usecases/delete-delivery/event-handlers";
 import { DeliveryDeleted } from "./server/delivery/events/DeliveryDeleted";
+import { DeliveryCompleted } from "./server/delivery/events/DeliveryCompleted";
 
 const context: AsyncLocalStorage<LoggingContext> = new AsyncLocalStorage();
 
@@ -57,6 +52,7 @@ const start = async () => {
     EventBus,
     logger
   );
+
   const deliveryDeletedSubscriber = new RXSubscriber<DeliveryCreated>(
     "delivery.deleted",
     EventBus,
@@ -94,8 +90,34 @@ const start = async () => {
     deliveryServer.deliveryDeletedEventHandler
   );
 
-  const deliveries = await deliveryServer.listDeliveriesController.handle({});
-  logger.info(deliveries);
+  const deliveryCompletedPublisher = new RXPublisher<DeliveryCompleted>(
+    "delivery.completed",
+    EventBus,
+    logger
+  );
+
+  deliveryCompletedPublisher.publish({
+    correlationId: "correlation-id-1",
+    eventId: "event-id-1",
+    eventName: "delivery.completed",
+    deliveryId: "id-1",
+  });
+
+  const before = await deliveryServer.listDeliveriesController.handle({});
+  logger.info(before);
+
+  const deliveryCompletedSubscriber = new RXSubscriber<DeliveryCompleted>(
+    "delivery.completed",
+    EventBus,
+    logger
+  );
+
+  deliveryCompletedSubscriber.subscribe(
+    deliveryServer.deliveryCompletedEventHandler
+  );
+
+  const after = await deliveryServer.listDeliveriesController.handle({});
+  logger.info(after);
 };
 
 start();

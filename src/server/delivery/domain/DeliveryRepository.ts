@@ -6,4 +6,6 @@ export interface DeliveryRepository {
 
   insert: (delivery: Delivery) => Promise<void>;
   deleteByID: (deliveryID: DeliveryID) => Promise<void>;
+
+  update: (delivery: Delivery) => Promise<void>;
 }

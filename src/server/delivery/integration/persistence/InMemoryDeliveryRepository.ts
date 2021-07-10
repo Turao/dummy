@@ -38,4 +38,13 @@ export class InMemoryDeliveryRepository implements DeliveryRepository {
 
     delete this.deliveries[deliveryID];
   }
+
+  async update(delivery: Delivery): Promise<void> {
+    this.logger.debug("updating delivery:", delivery);
+    if (!this.deliveries[delivery.id]) {
+      throw Error("delivery does not exist");
+    }
+
+    this.deliveries[delivery.id] = delivery;
+  }
 }

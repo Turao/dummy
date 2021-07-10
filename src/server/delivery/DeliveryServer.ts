@@ -4,6 +4,8 @@ import { Server } from "../core/Server";
 import { InMemoryDeliveryRepository } from "./integration/persistence/InMemoryDeliveryRepository";
 import { GetDeliveryController } from "./integration/web/GetDeliveryController";
 import { ListDeliveryController } from "./integration/web/ListDeliveriesController";
+import { DeliveryCompletedEventHandler } from "./usecases/complete-delivery/event-handlers";
+import { DeliveryCompleter } from "./usecases/complete-delivery/use-case";
 import { DeliveryCreatedEventHandler } from "./usecases/create-delivery/event-handlers";
 
 import { DeliveryCreator } from "./usecases/create-delivery/use-case";
@@ -23,6 +25,7 @@ export class DeliveryServer implements Server {
   // todo: make them private
   public readonly deliveryCreatedEventHandler: DeliveryCreatedEventHandler;
   public readonly deliveryDeletedEventHandler: DeliveryDeletedEventHandler;
+  public readonly deliveryCompletedEventHandler: DeliveryCompletedEventHandler;
   public readonly getDeliveryController: GetDeliveryController;
   public readonly listDeliveriesController: ListDeliveryController;
 
@@ -52,6 +55,11 @@ export class DeliveryServer implements Server {
 
     this.deliveryDeletedEventHandler = new DeliveryDeletedEventHandler(
       new DeliveryDeleter(deliveryRepository, logger),
+      logger
+    );
+
+    this.deliveryCompletedEventHandler = new DeliveryCompletedEventHandler(
+      new DeliveryCompleter(deliveryRepository, logger),
       logger
     );
   }
