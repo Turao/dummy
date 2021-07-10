@@ -1,33 +1,24 @@
 import { Logger } from "../../logging/core/Logger";
 import { Server } from "../core/Server";
 
-import { CreateDeliveryHandler } from "./integration/event-handlers/CreateDeliverySubscriber";
-import { DeleteDeliveryHandler } from "./integration/event-handlers/DeleteDeliverySubscriber";
-
 import { InMemoryDeliveryRepository } from "./integration/persistence/InMemoryDeliveryRepository";
+import { DeliveryCreatedEventHandler } from "./usecases/create-delivery/event-handlers";
 
 import { DeliveryCreator } from "./usecases/create-delivery/use-case";
+import { DeliveryDeletedEventHandler } from "./usecases/delete-delivery/event-handlers";
 import { DeliveryDeleter } from "./usecases/delete-delivery/use-case";
 
 export interface Config {
   port: number;
 }
 
-export const DEFAULT_CONFIG: Config = {
-  port: 8080,
-};
-
-export const env: Config = {
-  port: Number(process.env.SERVER_PORT),
-};
-
 export class DeliveryServer implements Server {
   private readonly config: Config;
   private readonly logger: Logger;
 
   // todo: make them private
-  public readonly createDeliveryHandler: CreateDeliveryHandler;
-  public readonly deleteDeliveryHandler: DeleteDeliveryHandler;
+  public readonly deliveryCreatedEventHandler: DeliveryCreatedEventHandler;
+  public readonly deliveryDeletedEventHandler: DeliveryDeletedEventHandler;
 
   constructor(config: Config, logger: Logger) {
     this.config = config;
@@ -36,13 +27,13 @@ export class DeliveryServer implements Server {
     // init repositories
     const deliveryRepository = new InMemoryDeliveryRepository(logger);
 
-    // register handlers
-    this.createDeliveryHandler = new CreateDeliveryHandler(
+    // register event handlers
+    this.deliveryCreatedEventHandler = new DeliveryCreatedEventHandler(
       new DeliveryCreator(deliveryRepository, logger),
       logger
     );
 
-    this.deleteDeliveryHandler = new DeleteDeliveryHandler(
+    this.deliveryDeletedEventHandler = new DeliveryDeletedEventHandler(
       new DeliveryDeleter(deliveryRepository, logger),
       logger
     );

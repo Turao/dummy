@@ -1,5 +1,5 @@
 export interface Event {
-  correlationId: string;
-  eventId: string;
-  eventName: string;
+  readonly correlationId: string;
+  readonly eventId: string;
+  readonly eventName: string;
 }

@@ -13,10 +13,6 @@ export class DeliveryCreator implements CreateDeliveryCommand {
   }
 
   async execute(request: CreateDeliveryRequest): Promise<void> {
-    this.logger.setContext({
-      ...this.logger.getContext(),
-      usecase: "delivery creation",
-    });
     this.logger.debug("creating delivery...", request.name);
     const delivery = new Delivery(request.name);
     this.deliveryRepository.insert(delivery);

@@ -1,10 +1,9 @@
 import { Handler } from "../../../../events/core/Handler";
 import { Logger } from "../../../../logging/core/Logger";
-import { Controller } from "../../../core/Controller";
 import { DeliveryDeleted } from "../../events/DeliveryDeleted";
 import { DeleteDeliveryCommand } from "../../usecases/delete-delivery/interfaces";
 
-export class DeleteDeliveryHandler implements Handler<DeliveryDeleted> {
+export class DeliveryDeletedEventHandler implements Handler<DeliveryDeleted> {
   private readonly deleteDelivery: DeleteDeliveryCommand;
   private readonly logger: Logger;
 
@@ -14,6 +13,10 @@ export class DeleteDeliveryHandler implements Handler<DeliveryDeleted> {
   }
 
   async handle(event: DeliveryDeleted): Promise<void> {
+    this.logger.setContext({
+      ...this.logger.getContext(),
+      correlationId: event.correlationId,
+    });
     this.logger.debug("handling delivery deleted event", { event });
     await this.deleteDelivery.execute({
       deliveryId: event.deliveryId,

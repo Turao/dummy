@@ -15,10 +15,11 @@ import { RXPublisher } from "./events/rx/RXPublisher";
 import { RXSubscriber } from "./events/rx/RXSubscriber";
 import { DeliveryCreated } from "./server/delivery/events/DeliveryCreated";
 import { InMemoryDeliveryRepository } from "./server/delivery/integration/persistence/InMemoryDeliveryRepository";
-import { CreateDeliveryHandler } from "./server/delivery/integration/event-handlers/CreateDeliverySubscriber";
+
 import { DeliveryCreator } from "./server/delivery/usecases/create-delivery/use-case";
 import { DeliveryDeleter } from "./server/delivery/usecases/delete-delivery/use-case";
-import { DeleteDeliveryHandler } from "./server/delivery/integration/event-handlers/DeleteDeliverySubscriber";
+import { DeliveryCreatedEventHandler } from "./server/delivery/usecases/create-delivery/event-handlers";
+import { DeliveryDeletedEventHandler } from "./server/delivery/usecases/delete-delivery/event-handlers";
 import { DeliveryDeleted } from "./server/delivery/events/DeliveryDeleted";
 
 const context: AsyncLocalStorage<LoggingContext> = new AsyncLocalStorage();
@@ -94,12 +95,12 @@ const logger = new TSLogger(new TSLog(), context, {
 const deliveryRepository = new InMemoryDeliveryRepository(logger);
 
 // register handlers
-const createDeliveryHandler = new CreateDeliveryHandler(
+const deliveryCreatedEventHandler = new DeliveryCreatedEventHandler(
   new DeliveryCreator(deliveryRepository, logger),
   logger
 );
 
-const deleteDeliveryHandler = new DeleteDeliveryHandler(
+const deliveryDeletedEventHandler = new DeliveryDeletedEventHandler(
   new DeliveryDeleter(deliveryRepository, logger),
   logger
 );
@@ -130,20 +131,29 @@ const deliveryDeletedSubscriber = new RXSubscriber<DeliveryCreated>(
   logger
 );
 
-deliveryCreatedSubscriber.subscribe(createDeliveryHandler);
+deliveryCreatedSubscriber.subscribe(deliveryCreatedEventHandler);
 
 deliveryCreatedPublisher.publish({
+  correlationId: "correlation-id-0",
+  eventId: "event-id-0",
+  eventName: "delivery.created",
   deliveryId: "id-0",
   deliveryName: "my-event-delivery-name",
 });
 
 deliveryCreatedPublisher.publish({
+  correlationId: "correlation-id-1",
+  eventId: "event-id-1",
+  eventName: "delivery.created",
   deliveryId: "id-1",
   deliveryName: "ahoy-name",
 });
 
 deliveryDeletedPublisher.publish({
+  correlationId: "correlation-id-3",
+  eventId: "event-id-3",
+  eventName: "delivery.deleted",
   deliveryId: "id-0",
 });
 
-deliveryDeletedSubscriber.subscribe(deleteDeliveryHandler);
+deliveryDeletedSubscriber.subscribe(deliveryDeletedEventHandler);
