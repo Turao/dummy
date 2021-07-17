@@ -1,7 +1,6 @@
 import { Server } from "../core/Server";
 import {
   Express,
-  Router,
   Request as ExpressRequest,
   Response as ExpressResponse,
 } from "express";
