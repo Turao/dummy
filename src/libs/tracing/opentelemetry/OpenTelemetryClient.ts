@@ -9,7 +9,7 @@ import { Logger } from "../../logging/core/Logger";
 import { Client } from "../core/Client";
 import { JaegerExporter } from "@opentelemetry/exporter-jaeger";
 
-interface Config {
+export interface Config {
   name: string;
 }
 

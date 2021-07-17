@@ -8,7 +8,7 @@ import {
 import { Logger } from "../../logging/core/Logger";
 import { Handler } from "../core/Handler";
 
-interface Config {
+export interface Config {
   port: number;
 }
 
