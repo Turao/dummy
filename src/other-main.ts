@@ -15,8 +15,8 @@ const tracingClient = new OpenTelemetryClient(
 tracingClient.start();
 
 import { PrometheusClient } from "./libs/metrics/prometheus/PrometheusClient";
-const MetricsClient = new PrometheusClient(AppLogger);
-MetricsClient.start();
+const metricsClient = new PrometheusClient(AppLogger);
+metricsClient.start();
 
 import { DeliveryApp } from "./delivery/DeliveryApp";
 import express from "express";
