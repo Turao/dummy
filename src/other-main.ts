@@ -15,14 +15,14 @@ import { PrometheusClient } from "./libs/metrics/PrometheusClient";
 const MetricsClient = new PrometheusClient(AppLogger);
 MetricsClient.start();
 
-import { DeliveryServer } from "./delivery/DeliveryServer";
+import { DeliveryApp } from "./delivery/DeliveryApp";
 import express from "express";
 import { ExpressServer } from "./libs/server/express/ExpressServer";
 
-const server = new DeliveryServer(
+const app = new DeliveryApp(
   new ExpressServer(express(), { port: 3000 }, AppLogger),
   {},
   AppLogger
 );
 
-server.serve();
+app.start();

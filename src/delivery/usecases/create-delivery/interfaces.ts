@@ -1,4 +1,4 @@
-import { Command } from "../../../libs/server/core/UseCase";
+import { Command } from "../../../libs/other/UseCase";
 
 export type CreateDeliveryRequest = {
   id: string;

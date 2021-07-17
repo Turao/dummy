@@ -1,4 +1,4 @@
-import { Query } from "../../../libs/server/core/UseCase";
+import { Query } from "../../../libs/other/UseCase";
 import { Delivery } from "../../domain/Delivery";
 
 export type ListDeliveriesResponse = Delivery[];

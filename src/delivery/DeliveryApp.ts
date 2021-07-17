@@ -16,8 +16,8 @@ import { DeliveryLister } from "./usecases/list-deliveries/use-case";
 
 export type Config = Record<string, never>;
 
-export class DeliveryServer implements Server {
-  private readonly delegate: Server;
+export class DeliveryApp {
+  private readonly server: Server;
   private readonly config: Config;
   private readonly logger: Logger;
 
@@ -28,8 +28,8 @@ export class DeliveryServer implements Server {
   public readonly getDeliveryHandler: GetDeliveryHandler;
   public readonly listDeliveriesHandler: ListDeliveryHandler;
 
-  constructor(delegate: Server, config: Config, logger: Logger) {
-    this.delegate = delegate;
+  constructor(server: Server, config: Config, logger: Logger) {
+    this.server = server;
     this.config = config;
     this.logger = logger;
 
@@ -46,6 +46,10 @@ export class DeliveryServer implements Server {
       new DeliveryLister(deliveryRepository, logger),
       logger
     );
+
+    // register handlers
+    this.server.registerHandler("/one", this.getDeliveryHandler);
+    this.server.registerHandler("/all", this.listDeliveriesHandler);
 
     // register event handlers
     this.deliveryCreatedEventHandler = new DeliveryCreatedEventHandler(
@@ -64,7 +68,7 @@ export class DeliveryServer implements Server {
     );
   }
 
-  async serve(): Promise<void> {
-    return this.delegate.serve();
+  async start(): Promise<void> {
+    return this.server.serve();
   }
 }
