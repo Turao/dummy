@@ -1,5 +1,5 @@
 import { Logger } from "../../../libs/logging/core/Logger";
-import { Controller } from "../../../libs/server/core/Controller";
+import { Handler } from "../../../libs/server/core/Handler";
 import { ListDeliveriesQuery } from "../../usecases/list-deliveries/interfaces";
 
 type Request = Record<string, never>;
@@ -12,7 +12,7 @@ type Response = {
   }[];
 };
 
-export class ListDeliveryController implements Controller<Request, Response> {
+export class ListDeliveryHandler implements Handler<Request, Response> {
   private readonly deliveryLister: ListDeliveriesQuery;
   private readonly logger: Logger;
 
