@@ -14,11 +14,10 @@ import { DeliveryDeleter } from "./usecases/delete-delivery/use-case";
 import { DeliveryGetter } from "./usecases/get-delivery/use-case";
 import { DeliveryLister } from "./usecases/list-deliveries/use-case";
 
-export interface Config {
-  port: number;
-}
+export type Config = Record<string, never>;
 
 export class DeliveryServer implements Server {
+  private readonly delegate: Server;
   private readonly config: Config;
   private readonly logger: Logger;
 
@@ -29,7 +28,8 @@ export class DeliveryServer implements Server {
   public readonly getDeliveryController: GetDeliveryController;
   public readonly listDeliveriesController: ListDeliveryController;
 
-  constructor(config: Config, logger: Logger) {
+  constructor(delegate: Server, config: Config, logger: Logger) {
+    this.delegate = delegate;
     this.config = config;
     this.logger = logger;
 
@@ -64,8 +64,7 @@ export class DeliveryServer implements Server {
     );
   }
 
-  serve(): Promise<void> {
-    this.logger.info(`serving DeliveryServer on port ${this.config.port}`);
-    return new Promise((resolve) => setTimeout(() => resolve, 3000));
+  async serve(): Promise<void> {
+    return this.delegate.serve();
   }
 }

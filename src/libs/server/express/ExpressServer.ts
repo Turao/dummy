@@ -1,12 +1,12 @@
-import { Server } from "./core/Server";
+import { Server } from "../core/Server";
 import { Express } from "express";
-import { Logger } from "../logging/core/Logger";
+import { Logger } from "../../logging/core/Logger";
 
 interface Config {
   port: number;
 }
 
-export class MyExpressServer implements Server {
+export class ExpressServer implements Server {
   private readonly express: Express;
   private readonly config: Config;
   private readonly logger: Logger;
@@ -19,8 +19,10 @@ export class MyExpressServer implements Server {
 
   async serve(): Promise<void> {
     this.logger.info("serving MyServer...");
-    this.express.listen(this.config, () =>
-      this.logger.info("listening on port", this.config.port)
-    );
+    this.express.listen(this.config, this.onListen.bind(this));
+  }
+
+  private async onListen(): Promise<void> {
+    this.logger.info("listening on port", this.config.port);
   }
 }
