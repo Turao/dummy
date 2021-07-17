@@ -1,8 +1,6 @@
-import { Entity } from "../../libs/server/core/Entity";
-
 export type DeliveryID = string;
 
-export class Delivery implements Entity<DeliveryID> {
+export class Delivery {
   public readonly id: DeliveryID;
   public readonly name: string;
   private completed: boolean;
