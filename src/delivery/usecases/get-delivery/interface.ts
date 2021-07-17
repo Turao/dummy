@@ -1,4 +1,4 @@
-import { Query } from "../../../libs/other/UseCase";
+import { Query } from "../../../libs/patterns/UseCase";
 import { Delivery } from "../../domain/Delivery";
 
 export type GetDeliveryRequest = {

@@ -1,5 +1,5 @@
-import { Logger } from "../logging/core/Logger";
-import { Client } from "./Client";
+import { Logger } from "../../logging/core/Logger";
+import { Client } from "../core/Client";
 import Prometheus from "prom-client";
 
 export class PrometheusClient implements Client {

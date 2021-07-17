@@ -5,8 +5,8 @@ import { SimpleSpanProcessor } from "@opentelemetry/tracing";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 
-import { Logger } from "../logging/core/Logger";
-import { Client } from "./Client";
+import { Logger } from "../../logging/core/Logger";
+import { Client } from "../core/Client";
 import { JaegerExporter } from "@opentelemetry/exporter-jaeger";
 
 interface Config {

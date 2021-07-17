@@ -1,4 +1,4 @@
-import { Command } from "../../../libs/other/UseCase";
+import { Command } from "../../../libs/patterns/UseCase";
 
 export type DeleteDeliveryRequest = {
   deliveryId: string;
