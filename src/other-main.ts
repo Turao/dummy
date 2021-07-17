@@ -7,9 +7,12 @@ const AppLogger = new TSLogger(new TSLog(), new AsyncLocalStorage(), {
   pretty: true,
 });
 
-import { OpenTelemetryClient } from "./libs/tracing/opentelemetry/OpenTelemetryTracing";
-const TracingClient = new OpenTelemetryClient({ name: "ahoy2" }, AppLogger);
-TracingClient.start();
+import { OpenTelemetryClient } from "./libs/tracing/opentelemetry/OpenTelemetryClient";
+const tracingClient = new OpenTelemetryClient(
+  { name: "other-main" },
+  AppLogger
+);
+tracingClient.start();
 
 import { PrometheusClient } from "./libs/metrics/prometheus/PrometheusClient";
 const MetricsClient = new PrometheusClient(AppLogger);
