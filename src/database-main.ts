@@ -48,6 +48,7 @@ const run = async () => {
     );
     await client.commitTransaction();
     // await client.rollbackTransaction();
+    await client.disconnect();
   } catch (err) {
     logger.error(err);
   }

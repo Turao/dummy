@@ -25,6 +25,11 @@ export class PostgreSQLClient implements Client {
     await this.delegate.connect();
   }
 
+  async disconnect(): Promise<void> {
+    this.logger.debug("disconnecting...");
+    await this.delegate.end();
+  }
+
   async exec(query: string, ...parameters: string[]): Promise<void> {
     this.logger.debug(query, parameters);
     await this.delegate.query(query, [...parameters]);

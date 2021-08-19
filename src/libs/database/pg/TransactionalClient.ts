@@ -17,10 +17,14 @@ export class PostgreSQLTransactionalClient implements TransactionalClient {
     this.delegate.connect();
   }
 
+  async disconnect(): Promise<void> {
+    this.delegate.disconnect();
+  }
+
   async exec(query: string, ...parameters: string[]): Promise<void> {
     try {
       this.assertClientIsInActiveTransaction();
-      this.delegate.exec(query, ...parameters);
+      await this.delegate.exec(query, ...parameters);
     } catch (err) {
       this.logger.warn(err);
     }
@@ -39,7 +43,7 @@ export class PostgreSQLTransactionalClient implements TransactionalClient {
   async beginTransaction(): Promise<void> {
     try {
       this.logger.debug("beginning transaction...");
-      this.delegate.exec("BEGIN;");
+      await this.delegate.exec("BEGIN;");
       this.inTransaction = true;
     } catch (err) {
       this.logger.warn(err);
@@ -50,7 +54,7 @@ export class PostgreSQLTransactionalClient implements TransactionalClient {
     try {
       this.assertClientIsInActiveTransaction();
       this.logger.debug("commiting transaction...");
-      this.delegate.exec("COMMIT;");
+      await this.delegate.exec("COMMIT;");
     } catch (err) {
       this.logger.warn(err);
     } finally {
@@ -62,7 +66,7 @@ export class PostgreSQLTransactionalClient implements TransactionalClient {
     try {
       this.assertClientIsInActiveTransaction();
       this.logger.debug("rolling back transaction...");
-      this.delegate.exec("ROLLBACK;");
+      await this.delegate.exec("ROLLBACK;");
     } catch (err) {
       this.logger.warn(err);
     } finally {
