@@ -24,7 +24,8 @@ export class PostgreSQLMigrator implements Migrator {
   }
 
   async migrate(): Promise<void> {
-    this.logger.info("starting migrations");
+    this.logger.info("starting migrations...");
     await migrate(this.config, this.config.path);
+    this.logger.info("migration finished successfully");
   }
 }

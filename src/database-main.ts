@@ -8,14 +8,22 @@ const logger = new TSLogger(new TSLog(), new AsyncLocalStorage(), {
   pretty: true,
 });
 
-new PostgreSQLMigrator(
-  {
-    database: "postgres",
-    host: "localhost",
-    port: 5432,
-    user: "postgres",
-    password: "postgres",
-    path: "migrations",
-  },
-  logger
-).migrate();
+const up = async () => {
+  try {
+    await new PostgreSQLMigrator(
+      {
+        database: "postgres",
+        host: "localhost",
+        port: 5432,
+        user: "postgres",
+        password: "postgres",
+        path: "migrations",
+      },
+      logger
+    ).migrate();
+  } catch (err) {
+    logger.error(err);
+  }
+};
+
+up();
