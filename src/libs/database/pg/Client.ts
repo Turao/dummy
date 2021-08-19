@@ -3,6 +3,7 @@ import { Client } from "../core/Client";
 import { Connection } from "../core/Connection";
 
 import { Client as PGClient } from "pg";
+
 export class PostgreSQLClient implements Client {
   private readonly delegate: PGClient;
   private readonly logger: Logger;
