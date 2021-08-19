@@ -7,12 +7,14 @@ interface Config {
   host: string;
   port: number;
   database: string;
-
   user: string;
   password: string;
+
+  // migration files
+  path: string;
 }
 
-export class PGMigrator implements Migrator {
+export class PostgreSQLMigrator implements Migrator {
   private readonly config: Config;
   private readonly logger: Logger;
 
@@ -21,13 +23,8 @@ export class PGMigrator implements Migrator {
     this.logger = logger;
   }
 
-  async up(path: string): Promise<void> {
+  async migrate(): Promise<void> {
     this.logger.info("starting migrations");
-    await migrate(this.config, path);
-  }
-
-  async down(path: string): Promise<void> {
-    this.logger.info("undoing migrations");
-    await migrate(this.config, path);
+    await migrate(this.config, this.config.path);
   }
 }
