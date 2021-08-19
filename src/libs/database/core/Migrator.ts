@@ -1,4 +1,4 @@
 export interface Migrator {
-  up: () => Promise<void>;
-  down: () => Promise<void>;
+  up: (path: string) => Promise<void>;
+  down: (path: string) => Promise<void>;
 }
