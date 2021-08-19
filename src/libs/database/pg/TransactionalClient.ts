@@ -4,10 +4,12 @@ import { PostgreSQLClient } from "./Client";
 
 export class PostgreSQLTransactionalClient implements TransactionalClient {
   private readonly delegate: PostgreSQLClient;
+  private inTransaction: boolean;
   private readonly logger: Logger;
 
   constructor(delegate: PostgreSQLClient, logger: Logger) {
     this.delegate = delegate;
+    this.inTransaction = false;
     this.logger = logger;
   }
 
@@ -16,25 +18,59 @@ export class PostgreSQLTransactionalClient implements TransactionalClient {
   }
 
   async exec(query: string, ...parameters: string[]): Promise<void> {
-    this.delegate.exec(query, ...parameters);
+    try {
+      this.assertClientIsInActiveTransaction();
+      this.delegate.exec(query, ...parameters);
+    } catch (err) {
+      this.logger.warn(err);
+    }
   }
 
   async query<Row>(query: string, ...parameters: string[]): Promise<Row[]> {
-    return this.delegate.query(query, ...parameters);
+    try {
+      this.assertClientIsInActiveTransaction();
+      return this.delegate.query(query, ...parameters);
+    } catch (err) {
+      this.logger.warn(err);
+      return [];
+    }
   }
 
   async beginTransaction(): Promise<void> {
-    this.logger.debug("beginning transaction...");
-    this.delegate.exec("BEGIN;");
+    try {
+      this.logger.debug("beginning transaction...");
+      this.delegate.exec("BEGIN;");
+      this.inTransaction = true;
+    } catch (err) {
+      this.logger.warn(err);
+    }
   }
 
   async commitTransaction(): Promise<void> {
-    this.logger.debug("commiting transaction...");
-    this.delegate.exec("COMMIT;");
+    try {
+      this.assertClientIsInActiveTransaction();
+      this.logger.debug("commiting transaction...");
+      this.delegate.exec("COMMIT;");
+    } catch (err) {
+      this.logger.warn(err);
+    } finally {
+      this.inTransaction = false;
+    }
   }
 
   async rollbackTransaction(): Promise<void> {
-    this.logger.debug("rolling back transaction...");
-    this.delegate.exec("ROLLBACK;");
+    try {
+      this.assertClientIsInActiveTransaction();
+      this.logger.debug("rolling back transaction...");
+      this.delegate.exec("ROLLBACK;");
+    } catch (err) {
+      this.logger.warn(err);
+    } finally {
+      this.inTransaction = false;
+    }
+  }
+
+  private assertClientIsInActiveTransaction(): void {
+    if (!this.inTransaction) throw Error("client is not in a transaction");
   }
 }
