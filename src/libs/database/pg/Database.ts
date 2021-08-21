@@ -5,7 +5,7 @@ import { Logger } from "../../logging/core/Logger";
 import { PostgreSQLClient } from "./Client";
 import { PostgreSQLTransactionalClient } from "./TransactionalClient";
 
-export class PosotgreSQLDatabase implements Database {
+export class PostgreSQLDatabase implements Database {
   private readonly clients: Map<ConnectionDetails, Client>;
   private readonly txClients: Map<ConnectionDetails, TransactionalClient>;
   private readonly logger: Logger;

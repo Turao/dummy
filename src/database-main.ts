@@ -2,9 +2,13 @@ import { PostgreSQLMigrator } from "./libs/database/postgres-migrations/Migrator
 import { TSLogger } from "./libs/logging/tslog/TSLogger";
 import { Logger as TSLog } from "tslog";
 import { AsyncLocalStorage } from "async_hooks";
-import { PostgreSQLTransactionalClient } from "./libs/database/pg/TransactionalClient";
-import { PostgreSQLClient } from "./libs/database/pg/Client";
-import { PosotgreSQLDatabase } from "./libs/database/pg/Database";
+import { PostgreSQLDatabase } from "./libs/database/pg/Database";
+import {
+  Inbox,
+  InboxDequeuer,
+  InboxEnqueuer,
+  InboxEventHandler,
+} from "./libs/resilience/inbox/Inbox";
 
 const logger = new TSLogger(new TSLog(), new AsyncLocalStorage(), {
   level: "debug",
@@ -25,7 +29,7 @@ const run = async () => {
       logger
     ).migrate();
 
-    const database = new PosotgreSQLDatabase(logger);
+    const database = new PostgreSQLDatabase(logger);
 
     const txClient = await database.getTransactionalClient({
       ssl: false,
@@ -47,6 +51,49 @@ const run = async () => {
     );
     // await txClient.commitTransaction();
     // await txClient.rollbackTransaction();
+
+    const inbox = new Inbox(
+      new InboxEnqueuer(txClient, logger),
+      new InboxDequeuer(txClient, logger),
+      new InboxEventHandler(txClient, logger),
+      logger
+    );
+
+    await inbox.start();
+
+    await txClient.exec("DELETE FROM inbox WHERE true");
+
+    await inbox.publishEvent({
+      id: "00000000-0000-0000-0000-000000000000",
+      correlationId: "00000000-0000-0000-0000-000000000000",
+      name: "first",
+      date: "2017-03-31 9:30:20",
+    });
+    await inbox.publishEvent({
+      id: "10000000-0000-0000-0000-000000000000",
+      correlationId: "10000000-0000-0000-0000-000000000000",
+      name: "second",
+      date: "2017-03-31 9:30:20",
+    });
+    await inbox.publishEvent({
+      id: "20000000-0000-0000-0000-000000000000",
+      correlationId: "20000000-0000-0000-0000-000000000000",
+      name: "third",
+      date: "2017-03-31 9:30:20",
+    });
+    await inbox.publishEvent({
+      id: "30000000-0000-0000-0000-000000000000",
+      correlationId: "30000000-0000-0000-0000-000000000000",
+      name: "fourth",
+      date: "2017-03-31 9:30:20",
+    });
+
+    await txClient.commitTransaction();
+
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
+    await inbox.stop();
+
     await txClient.disconnect();
   } catch (err) {
     logger.error(err);
