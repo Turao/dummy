@@ -1,6 +1,6 @@
 import { Logger } from "../../logging/core/Logger";
 import { Client } from "../core/Client";
-import { Connection } from "../core/Connection";
+import { ConnectionDetails } from "../core/Connection";
 
 import { Client as PGClient } from "pg";
 
@@ -8,7 +8,7 @@ export class PostgreSQLClient implements Client {
   private readonly delegate: PGClient;
   private readonly logger: Logger;
 
-  constructor(connection: Connection, logger: Logger) {
+  constructor(connection: ConnectionDetails, logger: Logger) {
     this.logger = logger;
 
     this.delegate = new PGClient({

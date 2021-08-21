@@ -1,4 +1,4 @@
-export interface Connection {
+export interface ConnectionDetails {
   ssl: boolean;
   host: string;
   port: number;
