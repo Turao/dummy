@@ -8,6 +8,7 @@ import { InboxPollingWorker } from "./libs/resilience/inbox/PollingWorker";
 import { InboxEnqueuer } from "./libs/resilience/inbox/Enqueuer";
 import { InboxDequeuer } from "./libs/resilience/inbox/Dequeuer";
 import { InboxEventHandler } from "./libs/resilience/inbox/EventHandler";
+import { RabbitMQPublisher } from "./libs/resilience/inbox/RabbitMQPublisher";
 
 const logger = new TSLogger(new TSLog(), new AsyncLocalStorage(), {
   level: "debug",
@@ -55,7 +56,7 @@ const run = async () => {
       new InboxEnqueuer(txClient, logger),
       new InboxPollingWorker(
         new InboxDequeuer(txClient, logger),
-        new InboxEventHandler(txClient, logger),
+        new InboxEventHandler(txClient, new RabbitMQPublisher(logger), logger),
         logger
       ),
       logger

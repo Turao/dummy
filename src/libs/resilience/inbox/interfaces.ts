@@ -1,4 +1,9 @@
-export type EventStatus = "pending" | "processing" | "processed";
+export enum EventStatus {
+  PENDING = "pending",
+  PROCESSING = "processing",
+  PROCESSED = "processed",
+  FAILED = "failed",
+}
 
 export interface Event {
   id: string;
