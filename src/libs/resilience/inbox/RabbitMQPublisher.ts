@@ -1,5 +1,5 @@
 import { Logger } from "../../logging/core/Logger";
-import { Event, EventPublisher } from "./interfaces";
+import { Event, EventPublisher } from "../interfaces";
 
 export class RabbitMQPublisher implements EventPublisher {
   private readonly logger: Logger;

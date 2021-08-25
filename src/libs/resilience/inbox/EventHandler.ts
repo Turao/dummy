@@ -1,6 +1,11 @@
 import { TransactionalClient } from "../../database/core/Client";
 import { Logger } from "../../logging/core/Logger";
-import { Event, EventStatus, EventHandler, EventPublisher } from "./interfaces";
+import {
+  Event,
+  EventStatus,
+  EventHandler,
+  EventPublisher,
+} from "../interfaces";
 
 // todo: needs a better name
 export class InboxEventHandler implements EventHandler<Event> {

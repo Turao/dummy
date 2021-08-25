@@ -4,7 +4,7 @@ import {
   EventDequeuer,
   EventHandler,
   PollingWorker,
-} from "./interfaces";
+} from "../interfaces";
 
 export class InboxPollingWorker implements PollingWorker {
   private readonly dequeuer: EventDequeuer;

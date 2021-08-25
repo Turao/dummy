@@ -1,6 +1,6 @@
 import { TransactionalClient } from "../../database/core/Client";
 import { Logger } from "../../logging/core/Logger";
-import { Event, EventDequeuer, EventStatus } from "./interfaces";
+import { Event, EventDequeuer, EventStatus } from "../interfaces";
 
 export class InboxDequeuer implements EventDequeuer {
   private readonly client: TransactionalClient;

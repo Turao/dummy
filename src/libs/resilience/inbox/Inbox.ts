@@ -4,7 +4,7 @@ import {
   EventEnqueuer,
   EventPublisher,
   PollingWorker,
-} from "./interfaces";
+} from "../interfaces";
 
 export class Inbox implements EventPublisher {
   private readonly enqueuer: EventEnqueuer;
