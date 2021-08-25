@@ -12,7 +12,7 @@ export class InboxEnqueuer implements EventEnqueuer {
   }
 
   async enqueueEvent<E extends Event>(event: E): Promise<void> {
-    this.logger.debug("enqueuing event", event);
+    this.logger.debug(`enqueuing event ${event.id}`);
     await this.client.txExec(
       "INSERT INTO inbox VALUES ($1, $2, $3, $4, $5)",
       event.id,

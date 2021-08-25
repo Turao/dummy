@@ -25,7 +25,8 @@ export class InboxEventHandler implements EventHandler<Event> {
       );
 
       await this.client.exec(
-        "UPDATE inbox SET status = 'processing' WHERE id = $1",
+        "UPDATE inbox SET status = $1 WHERE id = $2",
+        EventStatus.PROCESSING,
         event.id
       );
 

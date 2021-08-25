@@ -9,7 +9,6 @@ export class RabbitMQPublisher implements EventPublisher {
   }
 
   async publishEvent<E extends Event>(event: E): Promise<void> {
-    this.logger.debug("publishing event", event);
-    throw Error("error");
+    this.logger.debug(`publishing event ${event.id}`);
   }
 }

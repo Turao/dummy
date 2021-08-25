@@ -33,7 +33,7 @@ export class InboxPollingWorker implements PollingWorker {
   }
 
   private async poll(): Promise<void> {
-    this.logger.debug("polling for inbox event");
+    this.logger.debug("polling inbox event");
     const event = await this.dequeuer.dequeueEvent();
 
     if (event === null) {
