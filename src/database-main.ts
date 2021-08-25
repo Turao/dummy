@@ -3,12 +3,11 @@ import { TSLogger } from "./libs/logging/tslog/TSLogger";
 import { Logger as TSLog } from "tslog";
 import { AsyncLocalStorage } from "async_hooks";
 import { PostgreSQLDatabase } from "./libs/database/pg/Database";
-import {
-  Inbox,
-  InboxDequeuer,
-  InboxEnqueuer,
-  InboxEventHandler,
-} from "./libs/resilience/inbox/Inbox";
+import { Inbox } from "./libs/resilience/inbox/Inbox";
+import { InboxPollingWorker } from "./libs/resilience/inbox/PollingWorker";
+import { InboxEnqueuer } from "./libs/resilience/inbox/Enqueuer";
+import { InboxDequeuer } from "./libs/resilience/inbox/Dequeuer";
+import { InboxEventHandler } from "./libs/resilience/inbox/EventHandler";
 
 const logger = new TSLogger(new TSLog(), new AsyncLocalStorage(), {
   level: "debug",
@@ -54,12 +53,15 @@ const run = async () => {
 
     const inbox = new Inbox(
       new InboxEnqueuer(txClient, logger),
-      new InboxDequeuer(txClient, logger),
-      new InboxEventHandler(txClient, logger),
+      new InboxPollingWorker(
+        new InboxDequeuer(txClient, logger),
+        new InboxEventHandler(txClient, logger),
+        logger
+      ),
       logger
     );
 
-    await inbox.start();
+    await inbox.open();
 
     await txClient.exec("DELETE FROM inbox WHERE true");
 
@@ -92,7 +94,7 @@ const run = async () => {
 
     await new Promise((resolve) => setTimeout(resolve, 10000));
 
-    await inbox.stop();
+    await inbox.close();
 
     await txClient.disconnect();
   } catch (err) {

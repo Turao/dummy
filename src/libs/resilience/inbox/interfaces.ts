@@ -26,3 +26,8 @@ export interface EventEnqueuer {
 export interface EventDequeuer {
   dequeueEvent: <E extends Event>() => Promise<E | null>;
 }
+
+export interface PollingWorker {
+  startPolling: () => Promise<void>;
+  stopPolling: () => Promise<void>;
+}
