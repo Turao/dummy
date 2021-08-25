@@ -23,7 +23,8 @@ export class InboxEventHandler implements EventHandler<Event> {
       this.logger.debug(
         `marking event ${event.id} as ${EventStatus.PROCESSING}`
       );
-      this.client.exec(
+
+      await this.client.exec(
         "UPDATE inbox SET status = 'processing' WHERE id = $1",
         event.id
       );
@@ -33,6 +34,7 @@ export class InboxEventHandler implements EventHandler<Event> {
       this.logger.debug(
         `marking event ${event.id} as ${EventStatus.PROCESSED}`
       );
+
       await this.client.exec(
         "UPDATE inbox SET status = $1 WHERE id = $2",
         EventStatus.PROCESSED,
@@ -40,7 +42,6 @@ export class InboxEventHandler implements EventHandler<Event> {
       );
     } catch (err) {
       this.logger.warn(`unable to process event ${event.id}`);
-
       this.logger.debug(`marking event ${event.id} as ${EventStatus.FAILED}`);
 
       await this.client.exec(
